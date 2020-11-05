@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 # # Må søke etter navn, kan ikke få en stor fin tabell. 
 # sweden_names = requests.get('https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0001__BE0001D/BE0001Nyfodda/')
 
+# excel file DL Sverige 'https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/general-statistics/name-statistics/#_Tablesandgraphs'
+
 
 def get_dataset(url):
 	r = requests.get(url)
