@@ -25,7 +25,12 @@ def get_dataset(url):
 	castlist = []
 	for td in soup.findAll('td', class_='character'):
 		# Splitting on new line, and taking the 2. instance, which is where the names are
+		episode = td.text.split('\n')[2]
+		if '/ ...' in td.text:
+			episode = td.text.split('\n')[3].strip()
+			
 		name = td.text.split('\n')[1]
+		print(episode, name)
 		# Removing the odd episode that comes in, this does not remove any chars
 		if 'episode' not in name:
     		# Removing whitespaces, and adding to list	
@@ -45,4 +50,3 @@ if __name__ == "__main__":
 
 	norway_girls = read_excel('norway_girl_names.xlsx')
 	norway_boys = read_excel('norway_boy_names.xlsx')
-	print(norway_boys)
