@@ -45,4 +45,4 @@ if __name__ == "__main__":
 
 	norway_girls = read_excel('norway_girl_names.xlsx')
 	norway_boys = read_excel('norway_boy_names.xlsx')
-	print(sweden_girls["Girls' first names 1998-2019"])
+	print(norway_boys)
