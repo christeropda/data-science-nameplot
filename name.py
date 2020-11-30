@@ -16,7 +16,7 @@ import pandas as pd
 
 
 def read_excel(filename):
-    return pd.read_excel(filename)
+    return pd.read_excel(filename, dtype=str)
 
 
 def get_dataset(url):
@@ -33,6 +33,16 @@ def get_dataset(url):
 
 	return castlist
 if __name__ == "__main__":
-	castlist = get_dataset('https://www.imdb.com/title/tt0944947/fullcredits?ref_=tt_cl_sm#cast')
+	
+	pd.set_option('display.max_columns', 1000)
+	pd.set_option('display.max_rows', 1000)
 
-	print(castlist)
+	
+	castlist = get_dataset('https://www.imdb.com/title/tt0944947/fullcredits?ref_=tt_cl_sm#cast')
+	
+	sweden_girls = read_excel('sweden_girl_names.xlsx')
+	sweden_boys = read_excel('sweden_boy_names.xlsx')
+
+	norway_girls = read_excel('norway_girl_names.xlsx')
+	norway_boys = read_excel('norway_boy_names.xlsx')
+	print(sweden_girls["Girls' first names 1998-2019"])
