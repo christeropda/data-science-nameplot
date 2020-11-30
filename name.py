@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 # girlname_norway = requests.get('https://www.ssb.no/statbank/table/10467/tableViewLayout1/')
 
@@ -12,6 +13,10 @@ from bs4 import BeautifulSoup
 # sweden_names = requests.get('https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0001__BE0001D/BE0001Nyfodda/')
 
 # excel file DL Sverige 'https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/general-statistics/name-statistics/#_Tablesandgraphs'
+
+
+def read_excel(filename):
+    return pd.read_excel(filename)
 
 
 def get_dataset(url):
