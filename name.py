@@ -16,149 +16,159 @@ from matplotlib import pyplot as plt
 # excel file DL Sverige 'https://www.scb.se/en/finding-statistics/statistics-by-subject-area/population/general-statistics/name-statistics/#_Tablesandgraphs'
 
 
-def read_excel(filename):
-    return pd.read_excel(filename, dtype=str)
-
-
+#Webscrapping of imdb. baseed on reading TV shows. 
 def get_dataset(url, limiter):
-	r = requests.get(url)
-	soup = BeautifulSoup(r.content, 'html.parser')
-	castlist = []
-	for td in soup.findAll('td', class_='character'):
-		episode = td.text.split('\n')[2].strip().split(" ")[0]
-		if '/ ...' in td.text:
-			episode = td.text.split('\n')[3].strip().split(" ")[0]
-			
-		name = td.text.split('\n')[1]
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'html.parser')
+    castlist = []
+    # Find the different characters in the TV show
+    for td in soup.findAll('td', class_='character'):
+        episode = td.text.split('\n')[2].strip().split(" ")[0]
+        # A fix for some inconsistencies in how the imdb template is rendered.
+        if '/ ...' in td.text:
+            episode = td.text.split('\n')[3].strip().split(" ")[0]
+            
+        name = td.text.split('\n')[1]
 
-		if int(episode) < limiter:
-			break
+          # If we have surpased the amount of episodes we want to se, break of
+        if int(episode) < limiter:
+            break
 
-		castlist.append(name.strip())
+        castlist.append(name.strip())
 
-	
-	return castlist
-
+    
+    return castlist
+    
+    
+# Removes the same surname or first names of characters
+# Blacklist is for the name that will not be added in the list.
 def split_and_remove_dup(names, blacklist):
-	res = []
-	
-	for i in names:
-		diff = i.split(" ")
-		for j in diff:
-			if j not in res and j not in blacklist:
-				res.append(j)
-	
-	return res
+    res = []
+    
+    for i in names:
+          # Break the full character name into individual names,
+          # and iterate through them
+        diff = i.split(" ")
+        for j in diff:
+            if j not in res and j not in blacklist:
+                res.append(j)
+    
+    return res
 
 def find_names_swe(filename, charlist):
-	info = []
-	
-	with open(filename, "r") as f:
-		data = f.readline()
-		while(data):
-			name = data.split(",")[0].strip()
-			if name in charlist:
-				info.append(data.strip("\n"))
+    info = []
+    
+    with open(filename, "r") as f:
+        data = f.readline()
+        while(data):
+            name = data.split(",")[0].strip()
+            if name in charlist:
+                info.append(data.replace("-", "0").strip("\n"))
 
-			data = f.readline()
+            data = f.readline()
 
-	return info
+    return info
 
 def find_names_nor(filename, charlist):
-	info = []
+    info = []
 
-	with open(filename, "r") as f:
-		data = f.readline()
-		while(data):
-			name = data.split(";")[0].strip('"').strip()
-			if name in charlist:
-				info.append(data.strip("\n").strip('"').replace(";", ","))
+    with open(filename, "r") as f:
+        data = f.readline()
+        while(data):
+            name = data.split(";")[0].strip('"').strip()
+            if name in charlist:
+                info_add = data.strip('\n').strip(',').strip('"')
+                info.append(info_add.replace('.', '0').replace(';', ','))
 
-			data = f.readline()
-	
+            data = f.readline()
+    
 
-	return info
+    return info
 
-def plot(names, tit, start, fignum):
-	years = list(range(1998,2020))
-	numbers = []
+def plot(names, tit, start, fignum, row, column):
+    years = list(range(1998,2020))
+    numbers = []
+    name = ""
+    plt.figure(fignum)
+    plt.plot(years, list(0 for i in range(len(years))), name)
+    for i in names:
+        name = i.split(",")[0]
+        chars = i.split(",")[1:]
 
-	plt.figure(fignum)
-	for i in names:
-		name = i.strip('"').split(",")[0]
-		chars = i.strip('"').replace("-", "0").replace(".", "0").split(",")[1:]
+        j = 0	
+        while j < len(chars):
+            if '"' in chars[j]:
+                appendthis = chars[j].strip('"') + chars[j+1].strip('"')
+                numbers.append(int(appendthis))
+                j += 2
+                continue
 
-		j = 0	
-		while j < len(chars):
-			if '"' in chars[j]:
-				appendthis = chars[j].strip('"') + chars[j+1].strip('"')
-				print(appendthis)
-				numbers.append(int(appendthis))
-				j += 2
-				continue
+            numbers.append(int(chars[j]))
+            j += 1
 
-			numbers.append(int(chars[j]))
-			j += 1
+        plt.plot(years, numbers, label=name.strip('"'))
 
-		plt.plot(years, numbers, label=name.strip('"'))
+        numbers.clear()
+    
+    #plt.subplot(row, 2, column)
+    plt.legend(loc="upper left")
+    plt.axvline(x=start)
+    plt.title(tit)
+    plt.show()
+    plt.close()
 
-		numbers.clear()
-		
-	plt.legend(loc="upper left")
-	plt.axvline(x=start)
-	plt.title(tit)
-	
+    
 if __name__ == "__main__":
-	no_no_words = ["High", "The", "King", "Night", "Night's", 'Watch', "Officer", "Black", "Septa"]
+    no_no_words = ["High", "The", "King", "Night", "Night's", 'Watch', "Officer", "Black", "Septa"]
 
-	castlist_got = get_dataset('https://www.imdb.com/title/tt0944947/fullcredits?ref_=tt_cl_sm#cast', 3)
-	castlist_skam = get_dataset('https://www.imdb.com/title/tt5288312/fullcredits?ref_=tt_cl_sm#cast', 20)
-	castlist_wallander = get_dataset('https://www.imdb.com/title/tt0907702/fullcredits?ref_=tt_cl_sm#cast', 5)
-	
-	names_skam = split_and_remove_dup(castlist_skam, no_no_words)
-	names_got = split_and_remove_dup(castlist_got, no_no_words)
-	names_wallander = split_and_remove_dup(castlist_wallander, no_no_words)
+    castlist_got = get_dataset('https://www.imdb.com/title/tt0944947/fullcredits?ref_=tt_cl_sm#cast', 3)
+    castlist_skam = get_dataset('https://www.imdb.com/title/tt5288312/fullcredits?ref_=tt_cl_sm#cast', 20)
+    castlist_wallander = get_dataset('https://www.imdb.com/title/tt0907702/fullcredits?ref_=tt_cl_sm#cast', 5)
+    
+    names_skam = split_and_remove_dup(castlist_skam, no_no_words)
+    names_got = split_and_remove_dup(castlist_got, no_no_words)
+    names_wallander = split_and_remove_dup(castlist_wallander, no_no_words)
 
-	swe_got_girls = find_names_swe("sweden_girl_names.csv", names_got)
-	swe_got_boys = find_names_swe("sweden_boy_names.csv", names_got)
+    swe_got_girls = find_names_swe("sweden_girl_names.csv", names_got)
+    swe_got_boys = find_names_swe("sweden_boy_names.csv", names_got)
 
-	nor_got_girls = find_names_nor("norway_girl_names.csv", names_got)
-	nor_got_boys = find_names_nor("norway_boy_names.csv", names_got)
-
-
-	swe_skam_girls = find_names_swe("sweden_girl_names.csv", names_skam)
-	swe_skam_boys = find_names_swe("sweden_boy_names.csv", names_skam)
-
-	nor_skam_girls = find_names_nor("norway_girl_names.csv", names_skam)
-	nor_skam_boys = find_names_nor("norway_boy_names.csv", names_skam)
+    nor_got_girls = find_names_nor("norway_girl_names.csv", names_got)
+    nor_got_boys = find_names_nor("norway_boy_names.csv", names_got)
 
 
-	swe_wallander_girls = find_names_swe("sweden_girl_names.csv", names_wallander)
-	swe_wallander_boys = find_names_swe("sweden_boy_names.csv", names_wallander)
+    swe_skam_girls = find_names_swe("sweden_girl_names.csv", names_skam)
+    swe_skam_boys = find_names_swe("sweden_boy_names.csv", names_skam)
 
-	nor_wallander_girls = find_names_nor("norway_girl_names.csv", names_wallander)
-	nor_wallander_boys = find_names_nor("norway_boy_names.csv", names_wallander)
-
-
-	plot(swe_got_girls, "Game of Thrones, girl baby names in Sweeden born after 1998", 2011, 1)
-	plot(swe_got_boys, "Game of Thrones, boy baby names in Sweeden born after 1998", 2011, 2)
-
-	plot(nor_got_girls, "Game of Thrones, girl baby names in Norway born after 1998", 2011, 3)
-	plot(nor_got_boys, "Game of Thrones, boy baby names in Norway born after 1998", 2011, 4)
-
-	plot(swe_skam_girls, "Skam, girl baby names in Sweeden born after 1998", 2015, 5)
-	plot(swe_skam_boys, "Skam, boy baby names in Sweeden born after 1998", 2015, 6)
-
-	plot(nor_skam_girls, "Skam, girl baby names in Norway born after 1998", 2015, 7)
-	plot(nor_skam_boys, "Skam, boy baby names in Norway born after 1998", 2015, 8)
+    nor_skam_girls = find_names_nor("norway_girl_names.csv", names_skam)
+    nor_skam_boys = find_names_nor("norway_boy_names.csv", names_skam)
 
 
-	plot(swe_wallander_girls, "Wallander, girl baby names in Sweeden born after 1998", 2008, 9)
-	plot(swe_wallander_boys, "Wallander, boy baby names in Sweeden born after 1998", 2008, 10)
+    swe_wallander_girls = find_names_swe("sweden_girl_names.csv", names_wallander)
+    swe_wallander_boys = find_names_swe("sweden_boy_names.csv", names_wallander)
 
-	plot(nor_wallander_girls, "Wallander, girl baby names in Norway born after 1998", 2008, 11)
-	plot(nor_wallander_boys, "Wallander, boy baby names in Norway born after 1998", 2008, 12)
+    nor_wallander_girls = find_names_nor("norway_girl_names.csv", names_wallander)
+    nor_wallander_boys = find_names_nor("norway_boy_names.csv", names_wallander)
 
-	plt.show()
-	plt.close()
+
+    plot(swe_got_girls, "Game of Thrones, girl baby names in Sweeden born after 1998", 2011, 1)
+    plot(swe_got_boys, "Game of Thrones, boy baby names in Sweeden born after 1998", 2011, 2)
+
+    plot(nor_got_girls, "Game of Thrones, girl baby names in Norway born after 1998", 2011, 3)
+    plot(nor_got_boys, "Game of Thrones, boy baby names in Norway born after 1998", 2011, 4)
+
+    plot(swe_skam_girls, "Skam, girl baby names in Sweeden born after 1998", 2015, 5)
+    plot(swe_skam_boys, "Skam, boy baby names in Sweeden born after 1998", 2015, 6)
+
+    plot(nor_skam_girls, "Skam, girl baby names in Norway born after 1998", 2015, 7)
+    plot(nor_skam_boys, "Skam, boy baby names in Norway born after 1998", 2015, 8)
+
+
+    plot(swe_wallander_girls, "Wallander, girl baby names in Sweeden born after 1998", 2008, 9)
+    plot(swe_wallander_boys, "Wallander, boy baby names in Sweeden born after 1998", 2008, 10)
+
+    plot(nor_wallander_girls, "Wallander, girl baby names in Norway born after 1998", 2008, 11)
+    plot(nor_wallander_boys, "Wallander, boy baby names in Norway born after 1998", 2008, 12)
+
+    plt.show()
+    plt.close()
 

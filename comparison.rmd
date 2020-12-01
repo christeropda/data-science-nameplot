@@ -1,0 +1,193 @@
+---
+title: "Comparison betewen birthnames and TV Shows"
+author: "Christer Hagenes Opdahl and Kim Grønning Eide"
+date: "1 12 2020"
+output: html_document
+---
+
+```{r setup ,include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE)
+library(reticulate)
+```
+```{python}
+# Python libraries
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+from matplotlib import pyplot as plt
+```
+
+
+```{python}
+#Webscrapping of imdb. baseed on reading TV shows. 
+def get_dataset(url, limiter):
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'html.parser')
+    castlist = []
+    # Find the different characters in the TV show
+    for td in soup.findAll('td', class_='character'):
+        episode = td.text.split('\n')[2].strip().split(" ")[0]
+        # A fix for some inconsistencies in how the imdb template is rendered.
+        if '/ ...' in td.text:
+            episode = td.text.split('\n')[3].strip().split(" ")[0]
+            
+        name = td.text.split('\n')[1]
+
+          # If we have surpased the amount of episodes we want to se, break of
+        if int(episode) < limiter:
+            break
+
+        castlist.append(name.strip())
+
+    
+    return castlist
+    
+    
+# Removes the same surname or first names of characters
+# Blacklist is for the name that will not be added in the list.
+def split_and_remove_dup(names, blacklist):
+    res = []
+    
+    for i in names:
+          # Break the full character name into individual names,
+          # and iterate through them
+        diff = i.split(" ")
+        for j in diff:
+            if j not in res and j not in blacklist:
+                res.append(j)
+    
+    return res
+```
+
+```{python}
+def find_names_swe(filename, charlist):
+    info = []
+    
+    with open(filename, "r") as f:
+        data = f.readline()
+        while(data):
+            name = data.split(",")[0].strip()
+            if name in charlist:
+                info.append(data.replace("-", "0").strip("\n"))
+
+            data = f.readline()
+
+    return info
+
+def find_names_nor(filename, charlist):
+    info = []
+
+    with open(filename, "r") as f:
+        data = f.readline()
+        while(data):
+            name = data.split(";")[0].strip('"').strip()
+            if name in charlist:
+                info_add = data.strip('\n').strip(',').strip('"')
+                info.append(info_add.replace('.', '0').replace(';', ','))
+
+            data = f.readline()
+    
+
+    return info
+```
+
+```{python}
+def plot(names, tit, start, fignum, row, column):
+    years = list(range(1998,2020))
+    numbers = []
+    plt.figure(fignum)
+    for i in names:
+        name = i.split(",")[0]
+        chars = i.split(",")[1:]
+
+        j = 0	
+        while j < len(chars):
+            if '"' in chars[j]:
+                appendthis = chars[j].strip('"') + chars[j+1].strip('"')
+                numbers.append(int(appendthis))
+                j += 2
+                continue
+
+            numbers.append(int(chars[j]))
+            j += 1
+
+        plt.plot(years, numbers, label=name.strip('"'))
+        plt.legend(loc="upper left")
+        numbers.clear()
+    
+    plt.axvline(x=start)
+    plt.title(tit)
+    plt.show()
+    plt.close()
+```
+
+
+```{python}
+# blacklisted words from Game of Thrones 
+blacklist_got = ["High", "The", "King", "Night", "Night's", 'Watch', "Officer", "Black", "Septa"]
+blacklist_skam = []
+blacklist_wallander = []
+
+# Webscarpe IMDB for the character names
+castlist_got = get_dataset('https://www.imdb.com/title/tt0944947/fullcredits?ref_=tt_cl_sm#cast', 3)
+castlist_skam = get_dataset('https://www.imdb.com/title/tt5288312/fullcredits?ref_=tt_cl_sm#cast', 20)
+castlist_wallander = get_dataset('https://www.imdb.com/title/tt0907702/fullcredits?ref_=tt_cl_sm#cast', 5)
+
+# Seperate all the different names
+names_skam = split_and_remove_dup(castlist_skam, blacklist_skam)
+names_got = split_and_remove_dup(castlist_got, blacklist_got)
+names_wallander = split_and_remove_dup(castlist_wallander, blacklist_wallander)
+
+# Read the database for girls and boys names for both norway and sweden. 
+swe_got_girls = find_names_swe("sweden_girl_names.csv", names_got)
+swe_got_boys = find_names_swe("sweden_boy_names.csv", names_got)
+
+nor_got_girls = find_names_nor("norway_girl_names.csv", names_got)
+nor_got_boys = find_names_nor("norway_boy_names.csv", names_got)
+
+
+swe_skam_girls = find_names_swe("sweden_girl_names.csv", names_skam)
+swe_skam_boys = find_names_swe("sweden_boy_names.csv", names_skam)
+
+nor_skam_girls = find_names_nor("norway_girl_names.csv", names_skam)
+nor_skam_boys = find_names_nor("norway_boy_names.csv", names_skam)
+
+
+swe_wallander_girls = find_names_swe("sweden_girl_names.csv", names_wallander)
+swe_wallander_boys = find_names_swe("sweden_boy_names.csv", names_wallander)
+
+nor_wallander_girls = find_names_nor("norway_girl_names.csv", names_wallander)
+nor_wallander_boys = find_names_nor("norway_boy_names.csv", names_wallander)
+```
+
+
+```{python}
+# Plot the figures for Game of Thrones
+plot(swe_got_girls, "Game of Thrones, girl baby names in Sweeden born after 1998", 2011, 1,1, 1)
+plot(nor_got_girls, "Game of Thrones, girl baby names in Norway born after 1998", 2011, 2,1, 2)
+
+plot(swe_got_boys, "Game of Thrones, boy baby names in Sweeden born after 1998", 2011, 3,2, 1)
+plot(nor_got_boys, "Game of Thrones, boy baby names in Norway born after 1998", 2011, 4,2, 2)
+```
+
+```{python}
+# Plot the figures for SKAM
+plot(swe_skam_girls, "Skam, girl baby names in Sweeden born after 1998", 2015, 1,1, 1)
+plot(nor_skam_girls, "Skam, girl baby names in Norway born after 1998", 2015, 2,1, 2)
+
+plot(swe_skam_boys, "Skam, boy baby names in Sweeden born after 1998", 2015, 3,2, 1)
+plot(nor_skam_boys, "Skam, boy baby names in Norway born after 1998", 2015, 4,2, 2)
+```
+
+```{python}
+# Plot the figures for Wallander
+plot(swe_wallander_girls, "Wallander, girl baby names in Sweeden born after 1998", 2008, 1,1, 1)
+plot(nor_wallander_girls, "Wallander, girl baby names in Norway born after 1998", 2008, 2,1, 2)
+
+plot(swe_wallander_boys, "Wallander, boy baby names in Sweeden born after 1998", 2008, 3,2, 1)
+plot(nor_wallander_boys, "Wallander, boy baby names in Norway born after 1998", 2008, 4,2, 2)
+```
+
+
+
