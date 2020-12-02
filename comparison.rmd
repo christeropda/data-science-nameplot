@@ -18,9 +18,30 @@ import pandas as pd
 from matplotlib import pyplot as plt
 ```
 
+# About the project
+
+The project is to look at the names of newborns in Norway and Sweden, and compare the names they get against big TV shows. We first want to compare it against a big international TV show, and see if the names of the newborns are affected by this. Then we find a big TV show for both Norway and Sweden, and check if there is any differences. We will be comparing Norwegian girls against Swedish girls, and the same with the boys. 
+
+# Related Work
+
+# Initial Questions
+When we started the project initially, we were curious if the names that are used for Game of Thrones, were later seen as names for newborns in Norway and Sweden, and if any names were present before the TV show started if any names got more popular. However, when we got the results in from Game of Thrones, we realized that were few of the names were actually used. We then figured out we could look at different TV shows that were made in Norway and Sweden, and do the same analysis for those. We then got hit by the issue that for Skam in particular, some of the names were so popular that it became very hard to read the graphs. We then limited the number of characters to those that had been in the most episodes. Since the popularity of the different names are different from show to show, this limitation is also different between them. 
+
+
+# Data
+### Webscraping
+The information about actor names, and how many episodes they were involved in, were webscraped of imdb.com. The scraping were done using python, and the libraries requests and bs4. 
+
+### Statistics
+For the names we used, we looked up in table on ssb.no for Norway, and then downloaded the data in a csv file. The Swedish data we found on scb.se, we found a excel file and converted this to a csv. These files are read as normal files and their content is appended to a list. 
+
+
+
+<!-- Kjører de 2 siste spørsmålene på slutten -->
+
 
 ```{python}
-#Webscrapping of imdb. baseed on reading TV shows. 
+#Webscrapping of imdb. based on reading TV shows. 
 def get_dataset(url, limiter):
     r = requests.get(url)
     soup = BeautifulSoup(r.content, 'html.parser')
@@ -83,6 +104,7 @@ def find_names_nor(filename, charlist):
         while(data):
             name = data.split(";")[0].strip('"').strip()
             if name in charlist:
+                # Removing newline character, and fixing the format of the data. 
                 info_add = data.strip('\n').strip(',').strip('"')
                 info.append(info_add.replace('.', '0').replace(';', ','))
 
@@ -93,11 +115,13 @@ def find_names_nor(filename, charlist):
 ```
 
 ```{python}
-def plot(names, tit, start, fignum, row, column):
+def plot(names_sweden, names_norway, gender, title, start):
     years = list(range(1998,2020))
     numbers = []
-    plt.figure(fignum)
-    for i in names:
+    plt.figure(figsize=(12, 4))
+    
+    plt.subplot(1, 2, 1)
+    for i in names_sweden:
         name = i.split(",")[0]
         chars = i.split(",")[1:]
 
@@ -117,14 +141,39 @@ def plot(names, tit, start, fignum, row, column):
         numbers.clear()
     
     plt.axvline(x=start)
-    plt.title(tit)
+    plt.title("{}, {} baby names in Sweden".format(title, gender))
+    
+    plt.subplot(1, 2, 2)
+    numbers.clear()
+    for i in names_norway:
+        name = i.split(",")[0]
+        chars = i.split(",")[1:]
+
+        j = 0	
+        while j < len(chars):
+            if '"' in chars[j]:
+                appendthis = chars[j].strip('"') + chars[j+1].strip('"')
+                numbers.append(int(appendthis))
+                j += 2
+                continue
+
+            numbers.append(int(chars[j]))
+            j += 1
+
+        plt.plot(years, numbers, label=name.strip('"'))
+        plt.legend(loc="upper left")
+        numbers.clear()
+    
+    plt.axvline(x=start)
+    plt.title("{}, {} baby names in Norway".format(title, gender))
+
     plt.show()
     plt.close()
 ```
 
 
 ```{python}
-# blacklisted words from Game of Thrones 
+# blacklisted words from Game of Thrones, Skam and Wallander
 blacklist_got = ["High", "The", "King", "Night", "Night's", 'Watch', "Officer", "Black", "Septa"]
 blacklist_skam = []
 blacklist_wallander = []
@@ -164,30 +213,26 @@ nor_wallander_boys = find_names_nor("norway_boy_names.csv", names_wallander)
 
 ```{python}
 # Plot the figures for Game of Thrones
-plot(swe_got_girls, "Game of Thrones, girl baby names in Sweeden born after 1998", 2011, 1,1, 1)
-plot(nor_got_girls, "Game of Thrones, girl baby names in Norway born after 1998", 2011, 2,1, 2)
+plot(swe_got_girls, nor_got_girls, 'girls', 'Game of Thrones', 2011)
 
-plot(swe_got_boys, "Game of Thrones, boy baby names in Sweeden born after 1998", 2011, 3,2, 1)
-plot(nor_got_boys, "Game of Thrones, boy baby names in Norway born after 1998", 2011, 4,2, 2)
+plot(swe_got_boys, nor_got_boys, 'boys', 'Game of Thrones', 2011)
 ```
 
 ```{python}
-# Plot the figures for SKAM
-plot(swe_skam_girls, "Skam, girl baby names in Sweeden born after 1998", 2015, 1,1, 1)
-plot(nor_skam_girls, "Skam, girl baby names in Norway born after 1998", 2015, 2,1, 2)
+# Plot the figures for Game of Thrones
+plot(swe_skam_girls, nor_skam_girls, 'girls', 'Skam', 2015)
 
-plot(swe_skam_boys, "Skam, boy baby names in Sweeden born after 1998", 2015, 3,2, 1)
-plot(nor_skam_boys, "Skam, boy baby names in Norway born after 1998", 2015, 4,2, 2)
+plot(swe_skam_boys, nor_skam_boys, 'boys', 'Skam', 2015)
 ```
 
 ```{python}
-# Plot the figures for Wallander
-plot(swe_wallander_girls, "Wallander, girl baby names in Sweeden born after 1998", 2008, 1,1, 1)
-plot(nor_wallander_girls, "Wallander, girl baby names in Norway born after 1998", 2008, 2,1, 2)
+# Plot the figures for Game of Thrones
+plot(swe_wallander_girls, nor_wallander_girls, 'girls', 'Wallander', 2008)
 
-plot(swe_wallander_boys, "Wallander, boy baby names in Sweeden born after 1998", 2008, 3,2, 1)
-plot(nor_wallander_boys, "Wallander, boy baby names in Norway born after 1998", 2008, 4,2, 2)
+plot(swe_wallander_boys, nor_wallander_boys, 'boys', 'Wallander', 2008)
 ```
 
 
+# Exploratory Analysis
 
+# Final Analysis
