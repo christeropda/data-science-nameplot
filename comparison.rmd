@@ -1,7 +1,7 @@
 ---
-title: "Exploring the relationship between birth names and pop culture"
+title: "Exploring the relationship between birth names and TV-shows"
 author: "Christer Hagenes Opdahl and Kim Grønning Eide"
-date: "1 12 2020"
+date: "December 2020"
 output: html_document
 ---
 
@@ -20,35 +20,115 @@ from matplotlib import pyplot as plt
 
 # About the project
 
-The project is to look at the names of newborns in Norway and Sweden, and compare the names they get against big TV shows. We first want to compare it against a big international TV show, and see if the names of the newborns are affected by this. Then we find a big TV show for both Norway and Sweden, and check if there is any differences. We will be comparing Norwegian girls against Swedish girls, and the same with the boys. 
+This project are to analyze the names of newborns in Norway and Sweden, compare the names they get against big TV shows and the relation between them. Firstly a comparison against a big international TV show to see if there exists a big enough influence to affect the choice of names given to newborns.
+Second, a big TV show for both Norway and Sweden, and analyze if there exists
+a difference between the influence of international pop culture vs the ”local”
+trends. Our hypothesis is that when TV-series become exceedingly popular, the
+names within the series will appear in an increased fashion in the population.
+We will be comparing Norwegian girls against Swedish girls, and the same with
+the boys.
 
 # Related Work
-We know that there have been previous projects looking at the relation between baby names and pop culture, more specifically French names and character names from Game of Thrones. However, we do not know how these projects choose to display their statistics other than some graph system. Additionally, when searching for related work on the web, most solutions comes in the form of a list containing popular baby names, but without any form of knowing the amount of babies who was given the names. This research found on the web served more to be a "what not to do" and gave us an insight of what we wanted the graphs to look like. We wanted some kind of a graph that would show the popularity of each specific name in relation to the popular series, but also in relation to each other so that each name could be weighed up against each other.
+There are previous projects which have looked into the relationship between
+TV-series and baby names. For example, there were a group exploring the relationship between French names and Game of Thrones. However, this research has not been available to the public and we therefore know nothing about the outcome of the project.
 
-This is what lead us to the "simplicity is king" strategy. Display the yearly amount of each name in a graph containing all names, in addition to a static line on the year where the series dropped. We think that this is a good way to show the statistic, because its easy to read and you need no other information than the title of the graphic to understand what point we are trying to make.
 
-Also instead of just analyzing one series, we choose to analyze three different series. Since the data of the names, are specific to Norway and Sweden, we choose to analyze one globally popular series(Game of Thrones), one Norwegian series(SKAM) and one Swedish series(Wallander). Note that the algorithm that were created can infact analyze the relationship between norwegian and swedish baby names to any series contained on the IMDB website. This is possible since all series has the same character name display on the IMDB website,and we planned for it to be like this so we could dynamically switch out the series if we wanted to.
+While searching on the web, there are multiple web sites reciting popular names
+in a respective population. This information is often displayed as a list of names.
+This serves as a good way of displaying popular names, but does not have any
+further use as there is no indication of relation between the names and different
+TV-shows.
+
+
+The research found on the web served as a “what not to do” and became an
+insight on what we wanted the graphs to look like. They needed to be graphs
+that would show the popularity of each specific name in relation to the popular
+series, but also in relation to each other so that each name could be weighed up against each other.
+
+
+This is what lead to the “simplicity is king” strategy. Displaying the yearly
+count of each name in a graph containing all names within the tv-series. In
+addition, a static line to display the year when the series dropped. This is a
+good way to show the statistic, because its easy to read and there is no need
+for additional information than the title of the graphic to understand the point
+being made.
+
+
+There will be an analyzation of three different TV-series in this project. This
+choice were made, since the names used in this project are specific to Norway
+and Sweden. This is an opportune moment to see if there is any difference in the
+influence of international pop culture, and the pop culture within the different
+regions.
+
+
+The three different shows are ”Game Of Thrones”(internationally popular),
+”Skam”(popular in Norway) and ”Wallander”(popular in Sweden).
+
+Note that the algorithm which were created for this project, are not limited
+to these three TV-series, but can be used to analyze any tv-series as long as its
+listed on IMDB.com.
 
 # Initial Questions
-When we started the project initially, we were curious if the names that are used for Game of Thrones, were later seen as names for newborns in Norway and Sweden. We also wanted to know if any names were present before the TV show started. However, when we got the results in from Game of Thrones, we realized that few of the names from the series were actually used in reality. From this the logical next step were to look at different TV shows that were made in Norway and Sweden and do the same analysis for those. We then got hit by the issue that for Skam in particular, some of the names were so popular that it became very hard to read the graphs. To mitigate this issue, we limited the amount of episodes that each character played in. Since the popularity of the different names are different from show to show, this limitation is also different between the shows. This is further explained later on. 
+Initially, this project was just interested in seeing if the names used as char-
+acter names in Game of Thrones, were later seen as names for newborns in
+the Norwegian and Swedish population. To this end, it was also important to
+know if any of the names were present within the population before the TV-
+show started. However, when the results came the from anlalyzation of Game
+of Thrones, there were a realisation that few of the names from the series were
+actually used in reality. From this, the logical next step were to look at different
+the TV-shows that were made in Norway and Sweden and do the same analysis
+for these. This lead to an issue, some of the names were so popular that it
+became hard to read the graphs. To mitigate this issue, we limited the amount
+of episodes that each character played in. Since the popularity of the different
+names are different from show to show, this limitation is also different between
+the shows. This is further explained later on. 
 
 # Data
 ### Webscraping
 The information about actor names, and how many episodes they were involved in, were webscraped of imdb.com. The scraping were done using python, and the libraries requests and bs4. 
 
 ### Statistics
-All data used in this project, are collected from official sources in Norway and Sweden, respectively SSB and SCB(statistik databasen).
-The data from both sources contains all newborn baby names from 1998 to 2019, and the amount of babies that have been given each name.
-The data were originally organized as excel files, but we found out that while using python, converting the files to text files were faster and easier to work with.
-It becomes faster and easier because you can simply read each line in the file, searching for the character names and if found append into a list for further data wrangling.
+All data used in this project, are collected from official sources in Norway and
+Sweden, respectively SSB and SCB(statistik databasen). The data from both
+sources contains all newborn baby names from 1998 to 2019, in addition to the
+number of babies given each name. The data were originally organized as excel
+files. While using python, converting the files to text files were faster and easier
+to work with. It becomes faster and easier because you can simply read each
+line in the file, searching for the character names and if found append into a list
+for further data wrangling.
 
-The main hurdle to get over in this project was to convert the datasets into usable data structures that were fast and easy to access. The efficiency, were ensured by the above mentioned technique,
-however, a good amount of additional wrangling were needed to make the information plottable. The source code is heavily commented and should provide good insight on what was done.
+
+The main hurdle to get over in this project was to convert the data sets into
+usable data structures that were fast and easy to access. The efficiency, were
+ensured by the above mentioned technique, however, a good amount of additional wrangling were needed to make the information plottable. The source
+code is heavily commented and should provide good insight on what was done.
 
 # Exploratory Analysis
-We decided to show the data as a graph, where the number of newborns for each year for each country is shown in different graphs. We did initially want to show all names for one country in the same graph, but the graphs became unreadable because of all the information in them. We also looked into different plot methods, but in the end we came to the conclusion that a graph displays the different changes overtime better than the other charts we did look into. When reading the graphs, since we were interested in any changes after a show started, we added a vertical line to easier display the difference before and after to see if anything changed. The data we have could of course be displayed in a table, with the different numbers in cells next to each other. However, we decided not to go this route as we found the graph to be more readable for changes overtime, which is what we were aiming for. 
+The decision were made to show the data as different graphs, 4 in total for each
+TV-show. By splitting the boy names and girl names into different graphs, they
+became more readable and easier to understand. This was better then the initial
+plots were there were one plot per TV-show, which contained all names which
+lead to the graphs being really crowded. There were several discussions on how
+to achieve the best readability of the graphs, and several attempts were made
+to this end, such as displaying the statistics as tables. The final result, which is
+more easily readable and contains a good display of changes over time can be
+seen below.
 
-When plotting the different statistics it was important to make the data easily readable, and they had to be understandable for bystanders without additional knowledge about the project. There were multiple renditions, but we ultimately decided to show graphs containing multiple names and showing when the series came out in the same graph. To limit the amount of names on each graph we simply limited the amount of episodes the different character names had to be present in the series for them to be "important" enough to be on the graph.This was particularly important for the Norwegian series "Skam" which feature an enormous amount of character names spanning over many episodes. A limit at 10 episodes were shown to be an efficient metric. Note that different limits were used for different series. In addition when looking at the graphs, some might say that there are names missing, meaning that there are some popular name that is not present in the graph. This is either due to the above mentioned limit, or due to the fact that there are no newborns named that specific name.
+The graphics were important that were made in such a way that they were easily
+readable, they had to be understandable for bystanders without any knowledge
+about the project. There were multiple renditions, but we ultimately decided
+to show graphs containing multiple names and when the series came out in the
+same graph.
+
+A limit on the amount of names that were to be displayed on each graph had
+to be made, to avoid the graphs being over crowded with names. This were
+done by setting a limit on each show, in such a way that only the most ”important” character names were displayed. This was particularly important for the
+Norwegian TV-series ”Skam” which featured an enormous amount of character
+names spanning over many episodes. For Skam, a limitation on 10 episodes
+were shown to be an efficient metric. Note that different limits were used for
+different series. In addition when looking at the graphs, some might say that
+there are names missing, meaning that there are some popular name that is not
+present in the graph. This is either due to the above mentioned limit, or due to the fact that there are no newborns named that specific name.
 
 
 ```{python}
@@ -93,6 +173,8 @@ def split_and_remove_dup(names, blacklist):
 ```
 
 ```{python}
+
+# Reading the Swedish name files, which were converted to csv from excel. 
 def find_names_swe(filename, charlist):
     info = []
     
@@ -101,12 +183,14 @@ def find_names_swe(filename, charlist):
         while(data):
             name = data.split(",")[0].strip()
             if name in charlist:
+                # Changing the - to a 0 from the original file, to be able to read as integer and removing newline characters
                 info.append(data.replace("-", "0").strip("\n"))
 
             data = f.readline()
 
     return info
 
+# Reading the Norwegian name file, downloaded as a CSV file from SSB.
 def find_names_nor(filename, charlist):
     info = []
 
@@ -131,6 +215,7 @@ def plot(names_sweden, names_norway, gender, title, start):
     numbers = []
     plt.figure(figsize=(12, 4))
     
+    # Plotting the swedish names
     plt.subplot(1, 2, 1)
     for i in names_sweden:
         name = i.split(",")[0]
@@ -138,6 +223,7 @@ def plot(names_sweden, names_norway, gender, title, start):
 
         j = 0	
         while j < len(chars):
+            # A fix for whenever a name appears more often than 1000 in the namefile, they have spaces and commas between. 
             if '"' in chars[j]:
                 appendthis = chars[j].strip('"') + chars[j+1].strip('"')
                 numbers.append(int(appendthis))
@@ -153,7 +239,8 @@ def plot(names_sweden, names_norway, gender, title, start):
     
     plt.axvline(x=start, ls=':', lw=2)
     plt.title("{}, {} baby names in Sweden".format(title, gender))
-    
+
+    # A plot for Norway    
     plt.subplot(1, 2, 2)
     numbers.clear()
     for i in names_norway:
@@ -162,6 +249,7 @@ def plot(names_sweden, names_norway, gender, title, start):
 
         j = 0	
         while j < len(chars):
+            # Fixing whenever a name appears more often than 1000 in a year, it has commas in between the numbers
             if '"' in chars[j]:
                 appendthis = chars[j].strip('"') + chars[j+1].strip('"')
                 numbers.append(int(appendthis))
@@ -245,19 +333,46 @@ plot(swe_wallander_boys, nor_wallander_boys, 'boys', 'Wallander', 2008)
 
 
 # Final Analysis
-The results show that there are some increase in baby names after popular series aired, but very few, and there might need to be an additional discussion if the series itself were the main reason for the increase. 
-Many of the names that became more popular after the series aired, seems to already be increasing in popularity before the different shows came out, which also might be the reason for the names being in the series in the first place.
-This is very evident in the plots from the norwegian series "Skam" and the Swedish series "Wallander". With that said, there is also evidence that points to names being directly linked to the different shows, such as Game Of Thrones.
-But the statistics is not similar between the two different countries. In Sweden the names grew a lot in popularity in the years following, but in Norway there were no girl names from the show evident in the data.
-For example Arya, which arguably are the most popular name from Game Of thrones, are not given to a single newborn baby from 1998 to 2019. However, when looking further into the data, there were some influx of "Norwegianized" spelling
-of the names such as "Aria". This is however not shown in the plotted statistics, and is not a trivial thing to do either.
+The results show that there are some increase in baby names after popular series aired, but very few, and there might need to be an additional discussion if
+the series itself were the main reason for the increase. Many of the names that
+became more popular after the series aired, seems to already be increasing in
+popularity before the different shows came out, which also might be the reason
+for the names being in the series in the first place. This is very evident in the
+plots from the Norwegian series “Skam” and the Swedish series “Wallander”.
+With that said, there is also evidence that points to names being directly linked
+to the different shows, such as Game Of Thrones. But the statistics is not
+similar between the two different countries. In Sweden the names grew a lot
+in popularity in the years following, but in Norway there were no girl names
+from the show evident in the data. For example Arya, which arguably are the
+most popular name from Game Of Thrones, are not given to a single newborn
+baby from 1998 to 2019. However, with further investigation of the data, there
+were some influx of the “Norwegianized” spelling of the names such as “Aria”.
+This is however not shown in the plotted statistics, and is not a trivial thing to
+account for.
 
-To conclude:
+A summary of the conclusions reached in this project.
 
-*  There are some evidence that newborn baby names are influenced by pop culture, specifically from tv series.  For example Ebba (yellow line in Wallander girl names Sweden). However, this influence is not as big as we hypothesized.
+*  There are some evidence that newborn baby names are influenced by pop
+culture, specifically from TV-series. For example Ebba (yellow line in
+Wallander girl names Sweden). However, this influence is not as big as we
+hypothesized.
 
-*  There are also evidence that some names decreases in popularity as series comes out. For example William(pink line in Skam boys names Norway).
+*  There are also evidence that some names decreases in popularity as series
+comes out. For example William (pink line in Skam boys names Norway).
 
 *  The popular names from the tv shows, seems to be increasing in popularity before the shows came out.
 
 *  These finding does not take into account that the spelling of the names can be different in the different countries,  but still have the same "meaning" as in the tv shows.
+
+* There does not seem to be any difference in the influence of international
+TV-series vs TV-series which is more popular in the respective countries.
+
+Stephen J. Bush, Anna Powell-Smith and Tom C. Freeman suggest in their study
+”Network analysis of the social and demographic influences on name choice
+within the UK(1838-2016)”, that in general people name their children names
+based on the ”parents values, expectations and desires”. In their study they
+tried explaining why certain names seem to ”experience vogues, and cycles in and out of fashion between generations”. Its an interesting read, but more
+importantly have some of the same findings as in this project. TV-series does
+not seem to have as much of a profound impact on naming conventions as we
+initially thought. The reasoning behind why we give our children the names we
+do, are inherently complicated and might be a cause worth looking more into.
