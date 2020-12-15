@@ -1,9 +1,0 @@
-During the webscraping from imdb, when finding the different characters each row is on a newline. 
-However, there are some episode numbers that comes in between them. These had to be removed from 
-the list we used to keep the names from. 
-
-While searching for datasets that could be used for the different countries, it was an challenge to
-find a national stastic database that shows all names, instead of just top 50 or 100. Initially we 
-wanted to include Denmark as well to our plots, but since we could not find any tables that shows
-all names instead of just top 50 for them, we did not want to include that data, as names for TV-shows
-may not be included there. 
