@@ -1,4 +1,7 @@
-This is based on python code.
+Authors: Kim Grønning Eide, Christer Hagenes Opdahl
+Demo: https://www.youtube.com/watch?v=tNToHONLNko
+
+This project is based on python code.
 The python libraries required are:
  
  request
